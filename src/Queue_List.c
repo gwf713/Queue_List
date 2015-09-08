@@ -180,16 +180,22 @@ void Empty_Queue(ps_Queue pq)
 	 * @param  item(ts_Item)
 	 * @retval None
 	 */
-	void Node_Remove(ps_Node pnode, ts_Item item)
+	ErrorStatus Node_Remove(ps_Node pnode, ts_Item item)
 	{
 		if(memcmp(&item, &(pnode ->item), sizeof(ts_Item)) == 0)
 		{
 			/*Delete the node from queue*/
-			pnode ->pre ->next = pnode ->next;/* If there is no previous node, what will happen? */
-			pnode ->next ->pre = pnode ->pre;/* If there is no next node, what will happen? */
+			if(pnode ->pre != NULL)
+				pnode ->pre ->next = pnode ->next;/* If there is no previous node, what will happen? */
+			if(pnode ->next != NULL)
+				pnode ->next ->pre = pnode ->pre;/* If there is no next node, what will happen? */
 			
 			free(pnode);
+			
+			return(SUCCESS);
 		}
+		
+		return(ERROR);
 	}
 #endif /* Node_Remove_EN */
 
@@ -199,13 +205,15 @@ void Empty_Queue(ps_Queue pq)
  * @param  pfun: the function's pointer this function will call
  * @retval None
  */
-void Queue_Traverse(ps_Queue	pq,	void (*pfun)(ps_Node, ts_Item), ts_Item item)
+void Queue_Traverse(ps_Queue	pq,	ErrorStatus (*pfun)(ps_Node pNode, ts_Item Item), ts_Item item)
 {
 	ps_Node pnode = pq ->Header;
+	ErrorStatus Result_Function = ERROR;
 	
 	while(pnode ->next != NULL)
 	{
-		(* pfun)(pnode, item);
+		Result_Function = (* pfun)(pnode, item);
+		Result_Function = Result_Function;
 		pnode = pnode ->next;
 	}
 }
