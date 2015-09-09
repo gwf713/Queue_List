@@ -2,7 +2,8 @@
  *		Queue_List.c
  * @file	Queue_List.c
  * @brief	Source file of list queue module
- * @version	0.0.1
+ * @version	0.0.2
+ * @date    09-September-2015
  * @author	Gwf
  *
  * Copyright(c) 2015, Gwf
@@ -14,9 +15,9 @@
 #include	"Queue_List.h"
  
 /********** PRIVATE FUNCTION **********/
-static void Copy_To_Node(ts_Item item, ps_Node pNode);
-static void Copy_To_Item(ps_Node pNode, ps_Item pItem);
-static void Init_Queue(ps_Queue	pq);
+static void Copy_To_Node(ps_Item pItem, ps_Node pNode, size_t Size_Item);
+static void Copy_To_Item(ps_Node pNode, ps_Item pItem, size_t Size_Item);
+static void Init_Queue(ps_Queue	pq, size_t Size_Item);
 
 /********** PUBLIC FUNCTION **********/
 /**
@@ -24,7 +25,7 @@ static void Init_Queue(ps_Queue	pq);
  * @param  None
  * @retval pnew(ps_Queue)
  */
-ps_Queue Create_Queue(void)
+ps_Queue Create_Queue(size_t Size_Item)
 {
 	ps_Queue pnew;
 
@@ -32,7 +33,7 @@ ps_Queue Create_Queue(void)
 
 	if(pnew != NULL)
 	{
-		Init_Queue(pnew);
+		Init_Queue(pnew, Size_Item);
 	}
 
 	return(pnew);
@@ -86,24 +87,31 @@ uint8_t	Queue_Count(const ps_Queue	pq)
  * @param  item(ts_Item)
  * @retval (ErrorStatus)
  */
-ErrorStatus Queue_Write(ts_Item item, ps_Queue	pq)
+ErrorStatus Queue_Write(ps_Item pItem, ps_Queue	pq)
 {
+	ps_Item pNewItem;
 	ps_Node pnew;
 	
 	/* If the queue is full, then return false. */
 	if(Queue_Is_Full(pq))
 		return ERROR;
 
+	pNewItem = (ps_Item)malloc(pq ->Size_Item);
+	
+	if(pNewItem == NULL)
+		return ERROR;
+	
 	/* Allocate memory for new node. If no memory is available for node, return false. */
 	pnew = (ps_Node)malloc(sizeof(ts_Node));
 	
 	if(pnew == NULL)
 	{
+		free(pNewItem);
 		return	ERROR;
 	}
 	
 	/* Copy item to node. */
-	Copy_To_Node(item, pnew);
+	Copy_To_Node(pItem, pNewItem, pq ->Size_Item);
 	
 	/* Insert new node to the queue. */
 	pnew ->pre = NULL;
@@ -140,7 +148,7 @@ ErrorStatus Queue_Read(ps_Item pitem, ps_Queue pq)
 		return ERROR;
 
 	/* Copy item to the destination item. */
-	Copy_To_Item(pq ->Tail, pitem);
+	Copy_To_Item(pq ->Tail ->pItem, pitem, pq ->Count_Node);
 	
 	/* The pre node is the new tail node, and free the read node memory. */
 	pt = pq ->Tail;
@@ -167,7 +175,13 @@ ErrorStatus Queue_Read(ps_Item pitem, ps_Queue pq)
  */
 void Empty_Queue(ps_Queue pq)
 {
-	ts_Item dummy;
+	ps_Item dummy;
+	
+	dummy = (ps_Item)malloc(pq ->Size_Item);
+	
+	if(dummy == NULL)
+		return;
+	
 	/*Clear the nodes with functions "Queue_Read()"*/
 	while(!Queue_Is_Empty(pq))
 		Queue_Read(&dummy, pq);
@@ -180,9 +194,9 @@ void Empty_Queue(ps_Queue pq)
 	 * @param  item(ts_Item)
 	 * @retval None
 	 */
-	ErrorStatus Node_Remove(ps_Node pnode, ts_Item item)
+	ErrorStatus Node_Remove(ps_Node pnode, ps_Item pItem, ps_Queue pq)
 	{
-		if(memcmp(&item, &(pnode ->item), sizeof(ts_Item)) == 0)
+		if(memcmp(pnode ->pItem, pItem, pq ->Count_Node) == 0)
 		{
 			/*Delete the node from queue*/
 			if(pnode ->pre != NULL)
@@ -190,7 +204,10 @@ void Empty_Queue(ps_Queue pq)
 			if(pnode ->next != NULL)
 				pnode ->next ->pre = pnode ->pre;/* If there is no next node, what will happen? */
 			
+			free(pnode ->pItem);
 			free(pnode);
+			
+			(pq ->Count_Node)--;
 			
 			return(SUCCESS);
 		}
@@ -205,14 +222,14 @@ void Empty_Queue(ps_Queue pq)
  * @param  pfun: the function's pointer this function will call
  * @retval None
  */
-void Queue_Traverse(ps_Queue	pq,	ErrorStatus (*pfun)(ps_Node pNode, ts_Item Item), ts_Item item)
+void Queue_Traverse(ps_Queue	pq,	ErrorStatus (*pfun)(ps_Node pNode, ps_Item pItem, ps_Queue pq), ps_Item pItem)
 {
 	ps_Node pnode = pq ->Header;
 	ErrorStatus Result_Function = ERROR;
 	
 	while(pnode ->next != NULL)
 	{
-		Result_Function = (* pfun)(pnode, item);
+		Result_Function = (* pfun)(pnode, pItem, pq);
 		Result_Function = Result_Function;
 		pnode = pnode ->next;
 	}
@@ -224,10 +241,11 @@ void Queue_Traverse(ps_Queue	pq,	ErrorStatus (*pfun)(ps_Node pNode, ts_Item Item
  * @param  pq(ps_Queue)
  * @retval None
  */
-static void Init_Queue(ps_Queue	pq)
+static void Init_Queue(ps_Queue	pq, size_t Size_Item)
 {
 	pq ->Header = pq	->Tail = NULL;
 	pq ->Count_Node = 0;
+	pq ->Size_Item = Size_Item;
 }
 
 /**
@@ -236,9 +254,9 @@ static void Init_Queue(ps_Queue	pq)
  * @param  pNode(ps_Node): Node's pointer
  * @retval None
  */
-static void Copy_To_Node(ts_Item item, ps_Node pNode)
+static void Copy_To_Node(ps_Item pItem, ps_Node pNode, size_t Size_Item)
 {
-	pNode ->item = item;
+	memcpy(pNode ->pItem, pItem, Size_Item);
 }
 
 /**
@@ -247,7 +265,7 @@ static void Copy_To_Node(ts_Item item, ps_Node pNode)
  * @param  pNode(ps_Node): Node's pointer
  * @retval None
  */
-static void Copy_To_Item(ps_Node pNode, ps_Item pItem)
+static void Copy_To_Item(ps_Node pNode, ps_Item pItem, size_t Size_Item)
 {
-	*pItem = pNode ->item;
+	memcpy(pItem, pNode ->pItem, Size_Item);
 }
