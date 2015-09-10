@@ -90,7 +90,7 @@ uint8_t	Queue_Count(const ps_Queue	pq)
 ErrorStatus Queue_Write(ps_Item pItem, ps_Queue	pq)
 {
 	ps_Item pNewItem;
-	ps_Node pnew;
+	ps_Node pnew = NULL;
 	
 	/* If the queue is full, then return false. */
 	if(Queue_Is_Full(pq))
@@ -109,9 +109,13 @@ ErrorStatus Queue_Write(ps_Item pItem, ps_Queue	pq)
 		free(pNewItem);
 		return	ERROR;
 	}
+	else
+	{
+		pnew ->pItem = pNewItem;
+	}
 	
 	/* Copy item to node. */
-	Copy_To_Node(pItem, pNewItem, pq ->Size_Item);
+	Copy_To_Node(pItem, pnew, pq ->Size_Item);
 	
 	/* Insert new node to the queue. */
 	pnew ->pre = NULL;
@@ -148,10 +152,11 @@ ErrorStatus Queue_Read(ps_Item pitem, ps_Queue pq)
 		return ERROR;
 
 	/* Copy item to the destination item. */
-	Copy_To_Item(pq ->Tail ->pItem, pitem, pq ->Count_Node);
+	Copy_To_Item(pq ->Tail, pitem, pq ->Size_Item);
 	
 	/* The pre node is the new tail node, and free the read node memory. */
 	pt = pq ->Tail;
+	free(pt ->pItem);
 	free(pt);
 	
 	pq ->Tail = pq ->Tail ->pre;

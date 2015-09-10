@@ -17,13 +17,13 @@
 	#include "stdio.h"
 	/* Maxim items in queue */
 	#define	LIMIT_QUEUE	10
-	#define Node_Remove_EN
+	#undef Node_Remove_EN
 	
 	typedef void *ps_Item;
 	
 	/*type define of node*/ 
 	typedef	struct node{
-		void *	pItem; /* Item in node */
+		ps_Item	pItem; /* Item in node */
 		struct	node	*pre; /* Previous node's pointer*/
 		struct	node	*next;/* Next node's pointer */
 	}ts_Node, *ps_Node;
