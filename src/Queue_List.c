@@ -189,7 +189,7 @@ void Empty_Queue(ps_Queue pq)
 	
 	/*Clear the nodes with functions "Queue_Read()"*/
 	while(!Queue_Is_Empty(pq))
-		Queue_Read(&dummy, pq);
+		Queue_Read(dummy, pq);
 }
 
 #ifdef Node_Remove_EN
