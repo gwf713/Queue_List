@@ -89,52 +89,65 @@ uint8_t	Queue_Count(const ps_Queue	pq)
  */
 ErrorStatus Queue_Write(ps_Item pItem, ps_Queue	pq)
 {
-	ps_Item pNewItem;
+	ps_Item pNewItem = NULL;
 	ps_Node pnew = NULL;
 	
-	/* If the queue is full, then return false. */
-	if(Queue_Is_Full(pq))
-		return ERROR;
-
-	pNewItem = (ps_Item)malloc(pq ->Size_Item);
-	
-	if(pNewItem == NULL)
-		return ERROR;
-	
-	/* Allocate memory for new node. If no memory is available for node, return false. */
-	pnew = (ps_Node)malloc(sizeof(ts_Node));
-	
-	if(pnew == NULL)
+	if(pq ->Available == SET)
 	{
-		free(pNewItem);
-		return	ERROR;
+		/* Disable queue module */
+		pq ->Available = RESET;
+		
+		/* If the queue is full, then return false. */
+		if(Queue_Is_Full(pq))
+			return ERROR;
+
+		pNewItem = (ps_Item)malloc(pq ->Size_Item);
+		
+		if(pNewItem == NULL)
+			return ERROR;
+		
+		/* Allocate memory for new node. If no memory is available for node, return false. */
+		pnew = (ps_Node)malloc(sizeof(ts_Node));
+		
+		if(pnew == NULL)
+		{
+			free(pNewItem);
+			return	ERROR;
+		}
+		else
+		{
+			pnew ->pItem = pNewItem;
+		}
+		
+		/* Copy item to node. */
+		Copy_To_Node(pItem, pnew, pq ->Size_Item);
+		
+		/* Insert new node to the queue. */
+		pnew ->pre = NULL;
+
+		if(Queue_Is_Empty(pq))
+		{
+			pq ->Tail = pnew;
+			pnew ->next = NULL;
+		}
+		else
+		{
+			pq ->Header ->pre = pnew;
+			pnew ->next = pq ->Header;
+		}
+		
+		pq ->Header = pnew;
+		pq ->Count_Node++;
+		
+		/* Enable queue module */
+		pq ->Available = SET;
+		
+		return SUCCESS;
 	}
 	else
 	{
-		pnew ->pItem = pNewItem;
+		return ERROR;
 	}
-	
-	/* Copy item to node. */
-	Copy_To_Node(pItem, pnew, pq ->Size_Item);
-	
-	/* Insert new node to the queue. */
-	pnew ->pre = NULL;
-
-	if(Queue_Is_Empty(pq))
-	{
-		pq ->Tail = pnew;
-		pnew ->next = NULL;
-	}
-	else
-	{
-		pq ->Header ->pre = pnew;
-		pnew ->next = pq ->Header;
-	}
-	
-	pq ->Header = pnew;
-	pq ->Count_Node++;
-	
-	return SUCCESS;
 }
 
 /**
@@ -147,30 +160,41 @@ ErrorStatus Queue_Read(ps_Item pitem, ps_Queue pq)
 {
 	ps_Node pt;
 	
-	/* Check if queue is empty. Return false, if Empty. */
-	if(Queue_Is_Empty(pq))
-		return ERROR;
+	if(pq ->Available == SET)
+	{
+		pq ->Available = RESET;
 
-	/* Copy item to the destination item. */
-	Copy_To_Item(pq ->Tail, pitem, pq ->Size_Item);
+		/* Check if queue is empty. Return false, if Empty. */
+		if(Queue_Is_Empty(pq))
+			return ERROR;
+
+		/* Copy item to the destination item. */
+		Copy_To_Item(pq ->Tail, pitem, pq ->Size_Item);
 	
-	/* The pre node is the new tail node, and free the read node memory. */
-	pt = pq ->Tail;
-	free(pt ->pItem);
-	free(pt);
+		/* The pre node is the new tail node, and free the read node memory. */
+		pt = pq ->Tail;
+		free(pt ->pItem);
+		free(pt);
 	
-	pq ->Tail = pq ->Tail ->pre;
-	if((pq ->Tail) != NULL)
-		pq ->Tail ->next = NULL;/* If the pq ->Tail is Null, what will happen? */
+		pq ->Tail = pq ->Tail ->pre;
+		if((pq ->Tail) != NULL)
+			pq ->Tail ->next = NULL;/* If the pq ->Tail is Null, what will happen? */
 	
-	/* Reduce the count of nodes. */
-	pq ->Count_Node--;
+		/* Reduce the count of nodes. */
+		pq ->Count_Node--;
 	
-	/* If the count of nodes, then clear the header pointer of the queue. */
-	if(pq ->Count_Node == 0)
-		pq ->Header = NULL;
+		/* If the count of nodes, then clear the header pointer of the queue. */
+		if(pq ->Count_Node == 0)
+			pq ->Header = NULL;
 	
-	return SUCCESS;
+		pq ->Available = SET;
+
+		return SUCCESS;
+	}
+	else
+	{
+		return ERROR;
+	}
 }
 
 /**
@@ -251,6 +275,7 @@ static void Init_Queue(ps_Queue	pq, size_t Size_Item)
 	pq ->Header = pq	->Tail = NULL;
 	pq ->Count_Node = 0;
 	pq ->Size_Item = Size_Item;
+	pq ->Available = SET;
 }
 
 /**

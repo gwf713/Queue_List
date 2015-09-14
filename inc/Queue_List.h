@@ -34,6 +34,7 @@
 		ps_Node	Tail;
 		uint8_t	Count_Node;
 		size_t  Size_Item;
+		FlagStatus Available;
 	}ts_Queue, *ps_Queue;
 
 	/********** PUBLIC FUNCTION **********/
