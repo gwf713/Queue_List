@@ -99,12 +99,18 @@ ErrorStatus Queue_Write(ps_Item pItem, ps_Queue	pq)
 		
 		/* If the queue is full, then return false. */
 		if(Queue_Is_Full(pq))
+		{
+			pq ->Available = SET;
 			return ERROR;
-
+		}
+			
 		pNewItem = (ps_Item)malloc(pq ->Size_Item);
 		
 		if(pNewItem == NULL)
+		{
+			pq ->Available = SET;
 			return ERROR;
+		}
 		
 		/* Allocate memory for new node. If no memory is available for node, return false. */
 		pnew = (ps_Node)malloc(sizeof(ts_Node));
@@ -112,6 +118,7 @@ ErrorStatus Queue_Write(ps_Item pItem, ps_Queue	pq)
 		if(pnew == NULL)
 		{
 			free(pNewItem);
+			pq ->Available = SET;
 			return	ERROR;
 		}
 		else
@@ -166,7 +173,10 @@ ErrorStatus Queue_Read(ps_Item pitem, ps_Queue pq)
 
 		/* Check if queue is empty. Return false, if Empty. */
 		if(Queue_Is_Empty(pq))
+		{
+			pq ->Available = SET;
 			return ERROR;
+		}
 
 		/* Copy item to the destination item. */
 		Copy_To_Item(pq ->Tail, pitem, pq ->Size_Item);
