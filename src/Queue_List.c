@@ -239,12 +239,23 @@ void Empty_Queue(ps_Queue pq)
         {
             pq ->Available = RESET;
 
+			if(pq ->Header == pnode)
+			{
+			    pq ->Header = pnode ->next;
+			}
+			
+			if(pq ->Tail == pnode)
+			{
+			    pq ->Tail = pnode ->pre;
+			}
+			
 			/*Delete the node from queue*/
             if(pnode ->pre != NULL)
                 pnode ->pre ->next = pnode ->next;/* If there is no previous node, what will happen? */
             if(pnode ->next != NULL)
                 pnode ->next ->pre = pnode ->pre;/* If there is no next node, what will happen? */
 
+			
             free(pnode ->pItem);
             free(pnode);
 
@@ -274,7 +285,16 @@ void Empty_Queue(ps_Queue pq)
 		
         if(pnode != NULL)
 		{
-            do
+            if(pfun(pnode, pItem) == SET)
+			{
+				return pnode;
+			}
+			else
+			{
+				pnode = pnode ->next;
+			}
+			
+			while(pnode != NULL)
             {
                 if(pfun(pnode, pItem) == SET)
                 {
@@ -284,11 +304,9 @@ void Empty_Queue(ps_Queue pq)
                 {
                     pnode = pnode ->next;
                 }
-				
-                
-            }while(pnode != NULL);
-		}
-        
+            }
+        }
+		
         return pnode;
     }
 #endif /* Node_Remove_EN */

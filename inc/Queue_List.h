@@ -17,7 +17,7 @@
 	#include "stdio.h"
 	/* Maxim items in queue */
 	#define	LIMIT_QUEUE	10
-	#undef Node_Remove_EN
+	#define Node_Remove_EN
 	
 	typedef void *ps_Item;
 	
@@ -51,6 +51,6 @@
 	    extern ps_Node Queue_Find_Node(const ps_Queue pq, FlagStatus (*pfun)(const ps_Node, const ps_Item), const ps_Item pItem);
 	#endif /* Node_Remove_EN */
 	extern void Queue_Traverse(ps_Queue	pq,	ErrorStatus (*pfun)(ps_Node pNode, ps_Item Item, ps_Queue pq), ps_Item pItem);
-
+	
 #endif	/*QUEUE_LIST_H*/
 
