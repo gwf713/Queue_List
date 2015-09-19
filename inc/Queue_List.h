@@ -47,7 +47,8 @@
 	extern ErrorStatus Queue_Read(ps_Item pItem, ps_Queue	pq);
 	extern void Empty_Queue(ps_Queue pq);
 	#ifdef Node_Remove_EN
-		extern ErrorStatus Node_Remove(ps_Node pnode, ps_Item pItem, ps_Queue pq);
+		extern ErrorStatus Node_Remove(ps_Queue pq, ps_Node pnode);
+	    extern ps_Node Queue_Find_Node(const ps_Queue pq, FlagStatus (*pfun)(const ps_Node, const ps_Item), const ps_Item pItem);
 	#endif /* Node_Remove_EN */
 	extern void Queue_Traverse(ps_Queue	pq,	ErrorStatus (*pfun)(ps_Node pNode, ps_Item Item, ps_Queue pq), ps_Item pItem);
 

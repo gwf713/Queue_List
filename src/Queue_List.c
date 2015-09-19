@@ -233,26 +233,64 @@ void Empty_Queue(ps_Queue pq)
 	 * @param  item(ts_Item)
 	 * @retval None
 	 */
-	ErrorStatus Node_Remove(ps_Node pnode, ps_Item pItem, ps_Queue pq)
-	{
-		if(memcmp(pnode ->pItem, pItem, pq ->Count_Node) == 0)
-		{
+	ErrorStatus Node_Remove(ps_Queue pq, ps_Node pnode)
+    {
+        if(pq ->Available == SET)
+        {
+            pq ->Available = RESET;
+
 			/*Delete the node from queue*/
-			if(pnode ->pre != NULL)
-				pnode ->pre ->next = pnode ->next;/* If there is no previous node, what will happen? */
-			if(pnode ->next != NULL)
-				pnode ->next ->pre = pnode ->pre;/* If there is no next node, what will happen? */
-			
-			free(pnode ->pItem);
-			free(pnode);
-			
-			(pq ->Count_Node)--;
-			
-			return(SUCCESS);
+            if(pnode ->pre != NULL)
+                pnode ->pre ->next = pnode ->next;/* If there is no previous node, what will happen? */
+            if(pnode ->next != NULL)
+                pnode ->next ->pre = pnode ->pre;/* If there is no next node, what will happen? */
+
+            free(pnode ->pItem);
+            free(pnode);
+
+            (pq ->Count_Node)--;
+	
+            pq ->Available = SET;
+
+            return(SUCCESS);
 		}
+		else
+		{
+            return(ERROR);
+		}
+    }
+	
+	/**
+	 * @brief  Find node in the queue, compare in pfun, 
+	 *         return the point to the node
+	 * @param  pq(ps_queue)
+	 * @param  pfun: compare the node in this function
+	 * @param  pfun(ps_Item)
+	 * @retval None
+	 */
+	ps_Node Queue_Find_Node(const ps_Queue pq, FlagStatus (*pfun)(const ps_Node, const ps_Item), const ps_Item pItem)
+    {
+	    ps_Node pnode = pq ->Header;
 		
-		return(ERROR);
-	}
+        if(pnode != NULL)
+		{
+            do
+            {
+                if(pfun(pnode, pItem) == SET)
+                {
+                    break;
+                }
+                else
+                {
+                    pnode = pnode ->next;
+                }
+				
+                
+            }while(pnode != NULL);
+		}
+        
+        return pnode;
+    }
 #endif /* Node_Remove_EN */
 
 /**
