@@ -41,17 +41,17 @@
 
     /********** PUBLIC FUNCTION **********/
     extern ps_Queue Create_Queue(size_t Size_Item);
-    extern void Delete_Queue(ps_Queue 	pq);
-    extern FlagStatus Queue_Is_Full(const ps_Queue	pq);
-    extern FlagStatus Queue_Is_Empty(const ps_Queue	pq);
-    extern uint8_t	Queue_Count(const ps_Queue	pq);
-    extern ErrorStatus Queue_Write(ps_Item pItem, ps_Queue	pq);
-    extern ErrorStatus Queue_Read(ps_Item pItem, ps_Queue	pq);
+    extern void Delete_Queue(ps_Queue pq);
+    extern FlagStatus Queue_Is_Full(const ps_Queue pq);
+    extern FlagStatus Queue_Is_Empty(const ps_Queue pq);
+    extern uint8_t Queue_Count(const ps_Queue pq);
+    extern ErrorStatus Queue_Write(ps_Item pItem, ps_Queue pq);
+    extern ErrorStatus Queue_Read(ps_Item pItem, ps_Queue pq);
     extern void Empty_Queue(ps_Queue pq);
     #ifdef Node_Remove_EN
         extern ErrorStatus Node_Remove(ps_Queue pq, ps_Node pnode);
         extern ps_Node Queue_Find_Node(const ps_Queue pq, FlagStatus (*pfun)(const ps_Node, const ps_Item), const ps_Item pItem);
     #endif /* Node_Remove_EN */
-    extern void Queue_Traverse(ps_Queue	pq,	ErrorStatus (*pfun)(ps_Node pNode, ps_Item Item, ps_Queue pq), ps_Item pItem);
+    extern void Queue_Traverse(ps_Queue pq, ErrorStatus (*pfun)(ps_Node pNode, ps_Item Item, ps_Queue pq), ps_Item pItem);
 #endif	/*QUEUE_LIST_H*/
 
