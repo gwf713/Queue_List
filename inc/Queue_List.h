@@ -18,7 +18,7 @@
     #include "stdio.h"
 
     /* Maxim items in queue */
-    #define	LIMIT_QUEUE	10
+    #define	LIMIT_QUEUE	50
     #define Node_Remove_EN
 
     typedef void *ps_Item;
