@@ -44,11 +44,21 @@ ps_Queue Create_Queue(size_t Size_Item)
  * @param  pq(ps_Queue)
  * @retval None
  */
-void Delete_Queue(ps_Queue 	pq)
+ErrorStatus Delete_Queue(ps_Queue 	pq)
 {
-    Empty_Queue(pq);
-
-    free(pq);
+    ErrorStatus Status = ERROR;
+    
+    Status = Empty_Queue(pq);
+    
+    if(Status == SUCCESS)
+    {
+        free(pq);
+        return SUCCESS; 
+    }
+    else
+    {
+        return ERROR;
+    }
 }
 
 /**
@@ -212,18 +222,29 @@ ErrorStatus Queue_Read(ps_Item pitem, ps_Queue pq)
  * @param  pq(ps_queue)
  * @retval None
  */
-void Empty_Queue(ps_Queue pq)
+ErrorStatus Empty_Queue(ps_Queue pq)
 {
     ps_Item dummy;
 
     dummy = (ps_Item)malloc(pq ->Size_Item);
 
     if(dummy == NULL)
-        return;
+    {
+        return ERROR;
+    }
 
     /*Clear the nodes with functions "Queue_Read()"*/
     while(!Queue_Is_Empty(pq))
-        Queue_Read(dummy, pq);
+    {
+        if(Queue_Read(dummy, pq) == ERROR)
+        {
+            free(dummy);
+            return ERROR;
+        }
+    }
+        
+    free(dummy);
+    return SUCCESS;
 }
 
 #ifdef Node_Remove_EN
