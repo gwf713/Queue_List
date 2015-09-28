@@ -18,7 +18,6 @@
     #include "stdio.h"
 
     /* Maxim items in queue */
-    #define	LIMIT_QUEUE	50
     #define Node_Remove_EN
 
     typedef void *ps_Item;
@@ -35,12 +34,13 @@
         ps_Node	Header;
         ps_Node	Tail;
         uint8_t	Count_Node;
+        uint8_t Limit_Queue;
         size_t  Size_Item;
         FlagStatus Available;
     }ts_Queue, *ps_Queue;
 
     /********** PUBLIC FUNCTION **********/
-    extern ps_Queue Create_Queue(size_t Size_Item);
+    extern ps_Queue Create_Queue(size_t Size_Item, uint8_t Limit);
     extern ErrorStatus Delete_Queue(ps_Queue pq);
     extern FlagStatus Queue_Is_Full(const ps_Queue pq);
     extern FlagStatus Queue_Is_Empty(const ps_Queue pq);

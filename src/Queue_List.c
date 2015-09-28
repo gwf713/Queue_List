@@ -17,7 +17,7 @@
 /********** PRIVATE FUNCTION **********/
 static void Copy_To_Node(ps_Item pItem, ps_Node pNode, size_t Size_Item);
 static void Copy_To_Item(ps_Node pNode, ps_Item pItem, size_t Size_Item);
-static void Init_Queue(ps_Queue	pq, size_t Size_Item);
+static void Init_Queue(ps_Queue	pq, size_t Size_Item, uint8_t Limit);
 
 /********** PUBLIC FUNCTION **********/
 /**
@@ -25,7 +25,7 @@ static void Init_Queue(ps_Queue	pq, size_t Size_Item);
  * @param  None
  * @retval pnew(ps_Queue)
  */
-ps_Queue Create_Queue(size_t Size_Item)
+ps_Queue Create_Queue(size_t Size_Item, uint8_t Limit)
 {
     ps_Queue pnew;
 
@@ -33,7 +33,7 @@ ps_Queue Create_Queue(size_t Size_Item)
 
     if(pnew != NULL)
     {
-        Init_Queue(pnew, Size_Item);
+        Init_Queue(pnew, Size_Item, Limit);
     }
 
     return(pnew);
@@ -44,7 +44,7 @@ ps_Queue Create_Queue(size_t Size_Item)
  * @param  pq(ps_Queue)
  * @retval None
  */
-ErrorStatus Delete_Queue(ps_Queue 	pq)
+ErrorStatus Delete_Queue(ps_Queue pq)
 {
     ErrorStatus Status = ERROR;
     
@@ -66,9 +66,9 @@ ErrorStatus Delete_Queue(ps_Queue 	pq)
  * @param  pq(ps_Queue)
  * @retval (Bool)
  */
-FlagStatus Queue_Is_Full(const ps_Queue	pq)
+FlagStatus Queue_Is_Full(const ps_Queue pq)
 {
-    return((pq ->Count_Node >= LIMIT_QUEUE) ? SET : RESET);
+    return((pq ->Count_Node >= (pq ->Limit_Queue)) ? SET : RESET);
 }
 
 /**
@@ -76,7 +76,7 @@ FlagStatus Queue_Is_Full(const ps_Queue	pq)
  * @param  pq(ps_queue)
  * @retval (bool)
  */
-FlagStatus Queue_Is_Empty(const ps_Queue	pq)
+FlagStatus Queue_Is_Empty(const ps_Queue pq)
 {
     return((pq ->Count_Node == 0) ? SET : RESET);
 }
@@ -86,7 +86,7 @@ FlagStatus Queue_Is_Empty(const ps_Queue	pq)
  * @param  pq(ps_queue)
  * @retval (uint8_t): Number of nodes in the queue
  */
-uint8_t	Queue_Count(const ps_Queue	pq)
+uint8_t	Queue_Count(const ps_Queue pq)
 {
     return(pq ->Count_Node);
 }
@@ -338,7 +338,7 @@ ErrorStatus Empty_Queue(ps_Queue pq)
  * @param  pfun: the function's pointer this function will call
  * @retval None
  */
-void Queue_Traverse(ps_Queue	pq,	ErrorStatus (*pfun)(ps_Node pNode, ps_Item pItem, ps_Queue pq), ps_Item pItem)
+void Queue_Traverse(ps_Queue pq, ErrorStatus (*pfun)(ps_Node pNode, ps_Item pItem, ps_Queue pq), ps_Item pItem)
 {
     ps_Node pnode = pq ->Header;
     ErrorStatus Result_Function = ERROR;
@@ -357,11 +357,13 @@ void Queue_Traverse(ps_Queue	pq,	ErrorStatus (*pfun)(ps_Node pNode, ps_Item pIte
  * @param  pq(ps_Queue)
  * @retval None
  */
-static void Init_Queue(ps_Queue	pq, size_t Size_Item)
+static void Init_Queue(ps_Queue	pq, size_t Size_Item, uint8_t Limit)
 {
-    pq ->Header = pq	->Tail = NULL;
+    pq ->Available = RESET;
+    pq ->Header = pq ->Tail = NULL;
     pq ->Count_Node = 0;
     pq ->Size_Item = Size_Item;
+    pq ->Limit_Queue = Limit;
     pq ->Available = SET;
 }
 
